@@ -198,3 +198,35 @@
     
    * Por último, y como hicimos en la anterior petición. Creamos un evento en el cúal de decimos que primero cargue el DOM y que luego se ejecute la funcion cargarProductos, para que de esta forma no aparezca vacío y tenga tiempo a obtener los datos de la BBDD. 
     ![alt text](image-16.png)
+--------------------------------------------------------------------------------------------------------------------------------------------
+# 19.- Login 
+
+   * Vamos a crear el acceso a distintos clientes. Para ello necesitaremos un formulario de acceso y/o un formulario para que se registren. Los email, en la BBDD, la indicaremos como UNIQUE para que no pueda repetirse. 
+
+# 20.- clientes.models  
+*  Creamos el archivo donde generaremos las peticiones a la BBDD para crear o buscar clientes. 
+        1.- Conectamos el archivo con las BBDD importando pool.
+        ![alt text](image-17.png)
+        2.- Creamos la función buscarPorEmail. Para ello primero permitimos su exportación y nos aseguramos que sea asincrona. 
+            1.- Creamos una variable que sea un array y lo llenamos con la petición a la BBDD. Para ellos usamos el objeto pool y le hacemos la petición. En este caso pedimos que nos devuelva la id, nombre, email, password, creado_en a la tabla clientes donde el email sea ?, es decir, que se lo daremos desde el frontend desde un formulario, por ejemplo. 
+            2.- Pedimos que nos devuelva el array con las líneas necesarias para devolver los datos solicitados. 
+            ![alt text](image-18.png)
+
+# 21.- auth.controller.js
+*   Creamos este archivo. 
+
+  *  1.- Nos importamos todas la funciones de clientes.model.js, por lo que usamos el selector universal (*) y le indicamos un nombre a todo este conjunto de funciones con "as" 
+    ![alt text](image-19.png)
+    2.- Instalamos las librerias para encriptar las contraseñas con npm install jsonwebtoken y con npm install bcryptjs
+    3.- Importamos las librerias de encriptación. 
+    ![alt text](image-20.png)
+    4.- Creamos la función login () -->
+
+    5.- Introducimos estos datos en el archivo .env : ![alt text](image-21.png)
+# 22. Creamos auth.routes.js
+
+
+# 23.- Configuramos en el servidor la ruta para auth
+
+*   1.- Importamos la ruta de auth.routes.js 
+    2.- Indicamos que ruta usar al server ![alt text](image-22.png)

@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import pool from './config/db.js';
 import productosRoutes from './routes/productos.routes.js';
+import authRoutes from "./routes/auth.routes.js"
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.get('/api/probar-bbdd', async (req, res) => {
 
 // Rutas de productos
 app.use('/api/productos', productosRoutes);
+app.use("api/authRoutes", authRoutes );
 
 // Arrancar el servidor
 const PORT = process.env.PORT || 3000;
