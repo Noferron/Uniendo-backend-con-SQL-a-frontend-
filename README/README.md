@@ -1,8 +1,45 @@
+Perfecto. Aquí tienes **el índice con enlaces internos** totalmente funcional, listo para pegar en tu README.md.
+
+---
+
+# 📑 **ÍNDICE CON ENLACES**
+
+> ⚠️ *Asegúrate de que los títulos en tu README coincidan exactamente para que los enlaces funcionen.*
+
+---
+
+1. **[Creación de carpetas del proyecto](#1--creación-de-carpetas-del-proyecto)**
+2. **[Instalación de paquetes y dependencias](#2--instalación-de-paquetes-y-dependencias)**
+3. **[Modificación del packagejson](#3--modificación-del-packagejson)**
+4. **[Creación y contenido del archivo env](#4--creación-y-contenido-del-archivo-env)**
+5. **[Configuración de la base de datos dbjs](#5--configuración-de-la-base-de-datos-dbjs)**
+6. **[Archivo gitignore](#6--archivo-gitignore)**
+7. **[Configuración del servidor serverjs](#7--configuración-del-servidor-serverjs)**
+8. **[Creación de la primera ruta productosroutesjs](#8--creación-de-la-primera-ruta-productosroutesjs)**
+9. **[Importación y uso de la ruta de productos en el servidor](#9--importación-y-uso-de-la-ruta-de-productos-en-el-servidor)**
+10. **[Comprobación de conexión a BBDD con pool](#10--comprobación-de-conexión-a-bbdd-con-pool)**
+11. **[Creación del archivo initdbjs](#11--creación-del-archivo-initdbjs)**
+12. **[Creación de carpetas controller y model](#12--creación-de-carpetas-controller-y-model)**
+13. **[productosmodeljs](#13--productosmodeljs)**
+14. **[productoscontrollerjs](#14--productoscontrollerjs)**
+15. **[productosroutesjs](#15--productosroutesjs)**
+16. **[Creación del frontend](#16--creación-del-frontend)**
+17. **[Conexión del frontend con el backend](#17--conexión-del-frontend-con-el-backend)**
+18. **[Creación del sistema de tarjetas de productos](#18--creación-del-sistema-de-tarjetas-de-productos)**
+19. **[Implementación del Login](#19--implementación-del-login)**
+20. **[clientesmodeljs](#20--clientesmodeljs)**
+21. **[authcontrollerjs](#21--authcontrollerjs)**
+22. **[authroutesjs](#22--authroutesjs)**
+23. **[Configuración de la ruta auth en el servidor](#23--configuración-de-la-ruta-auth-en-el-servidor)**
+24. **[Pruebas de la API con Thunder Client](#24--pruebas-de-la-api-con-thunder-client)**
+25. **[Formularios de registro e inicio de sesión](#25--formularios-de-registro-e-inicio-de-sesión)**
+
+
 # 1.- Creamos las capertas: 
-   -  mkdir backend y dentro las capertas de config y routes
+   * -  mkdir backend y dentro las capertas de config y routes
 
 # 2.- Creamos los paquetes y depedencias
-   * - npm init -y --> Crea el package.json
+   - npm init -y --> Crea el package.json
    * - npm install express cors dotenv mysql2 --> instalamos express, cors, los archivo .env y las dependencias con mysql
    * - npm install --save-dev nodemon --> Realizar la autorecarga del proyecto por cada guardado
 
@@ -26,7 +63,8 @@
 # 5.- Creamos la configuración dentro de db.js
    * Traemos todos los datos que introdujimos en el archivo.env, creamos un objeto llamado "pool" para poder exportarlo y usarlo fuera de db.js. Además importamos la libreria mysql de "mysql2/promise"
 
-    ''' const pool = mysql.createPool({ -->Creamos el objeto
+    ``` js 
+    const pool = mysql.createPool({ -->Creamos el objeto
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -37,7 +75,8 @@
     queueLimit: 0
     });
 
-    export default pool; '''
+    export default pool; 
+    ```
 
 # 6.- Creamos el archivo .gitignore 
   * Aquí indicamos a git que archivos no queremos que suban al repositorio de GitHub.
@@ -56,15 +95,20 @@
         app.use(cors()) y app.use(express.json())
     
    * - Creamos ruta raíz, que podemos usar para comprobar que el servidor funciona correctamente. 
+        ```js 
         app.get("/", (req,res)=> {
-            res.send('API Node + MySQL - Bloque 3');
-        });
+           res.send('API Node + MySQL - Bloque 3');
+        }); 
+        ``` 
    * - Arrancamos el servidor 
+
+        ```js 
         const PORT = process.env.PORT || 3000;
 
         app.listen(PORT, () => {
             console.log(`Servidor escuchando en http://localhost:${PORT}`);
         });
+      ```
 
 # 8.- Creamos la primera ruta y el archivo de rutas "productos.routes.js
 
@@ -100,7 +144,7 @@
 #   - Creamos la funcion "sync function crearBBDD()"
    * dentro de esta función en el archivo init.db.js realizamos la creación de tablas y columnas para nuestra BBDD. 
 
-    ```  // TABLA CLIENTES
+    ```js  // TABLA CLIENTES
         await pool.query(`
             CREATE TABLE IF NOT EXISTS clientes (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -109,7 +153,9 @@
                 password VARCHAR(255) NOT NULL,
                 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        `);```
+        `);
+       ```
+
     await --> es para que la función sea asincrona 
     CREATE TABLE IF NOT EXISTS --> Aquí decimos que cree la tabla si no existe, para que no borre si existe ya una igual. 
 
@@ -295,13 +341,19 @@ Por último creamos las rutas con el método post.
 Intentamos crear un usario desde la ruta definida en el server --> http://localhost:3000/api/auth/register
 --> Con el método POST
 --> En body llenamos los datos con formato JSON de la siguiente manera: 
-  -->{
+  -->
+  ```JSON
+    {
       "nombre":"Roberto",
       "email": "roberto@ejemplo.com",
       "password":"123456"
      }
+  ```
+  
 
-EXITO. Usuario creado! --> {
+EXITO. Usuario creado! --> 
+```JSON
+{
   "success": true,
   "message": "Usuario registrado exitosamente",
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRlX2lkIjo0LCJpYXQiOjE3NjQ2NzU0NjQsImV4cCI6MTc2NDc2MTg2NH0.j3wTa3lFWCvFbRo75y6ejaPNH83nJudhGuziI-dODFc",
@@ -311,15 +363,18 @@ EXITO. Usuario creado! --> {
     "email": "roberto@ejemplo.com"
   }
 }
+```
 
 Ahora intentamos iniciar sesion 
 --> http://localhost:3000/api/auth/login
 --> Método POST
---> {
+--> 
+```JSON
+{
   "email": "roberto@ejemplo.com",
   "password":"123456"
 }
-
+```
 # 25.- Creamos el formulario de registro y de inicio de sesión en frontend
 
 * En el HTML creamos una sección y creamos dentro el formulario.

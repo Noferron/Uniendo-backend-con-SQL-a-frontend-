@@ -445,15 +445,4 @@ POST http://localhost:3000/api/auth/login
 }
 ```
 
----
 
-# ✅ Proyecto listo
-
-Si quieres, puedo generarte:
-
-✔ versión PDF
-✔ versión resumida
-✔ versión ultra detallada
-✔ archivo .zip con toda la estructura
-
-Solo dímelo.
