@@ -39,7 +39,7 @@ app.get('/api/probar-bbdd', async (req, res) => {
 
 // Rutas de productos
 app.use('/api/productos', productosRoutes);
-app.use("api/authRoutes", authRoutes );
+app.use("/api/auth", authRoutes );
 
 // Arrancar el servidor
 const PORT = process.env.PORT || 3000;

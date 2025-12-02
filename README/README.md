@@ -26,7 +26,7 @@
 # 5.- Creamos la configuración dentro de db.js
    * Traemos todos los datos que introdujimos en el archivo.env, creamos un objeto llamado "pool" para poder exportarlo y usarlo fuera de db.js. Además importamos la libreria mysql de "mysql2/promise"
 
-    ```const pool = mysql.createPool({ -->Creamos el objeto 
+    ''' const pool = mysql.createPool({ -->Creamos el objeto
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -37,7 +37,7 @@
     queueLimit: 0
     });
 
-    export default pool;```
+    export default pool; '''
 
 # 6.- Creamos el archivo .gitignore 
   * Aquí indicamos a git que archivos no queremos que suban al repositorio de GitHub.
@@ -112,6 +112,8 @@
         `);```
     await --> es para que la función sea asincrona 
     CREATE TABLE IF NOT EXISTS --> Aquí decimos que cree la tabla si no existe, para que no borre si existe ya una igual. 
+
+    IMPORTANTE --> node init.db.js dentro del terminal integrado del archivo para crear la base de datos 
 
 # 12.- Creamos la carpeta controlador y controlador dentro de backend 
 
@@ -205,28 +207,122 @@
 
 # 20.- clientes.models  
 *  Creamos el archivo donde generaremos las peticiones a la BBDD para crear o buscar clientes. 
-        1.- Conectamos el archivo con las BBDD importando pool.
+     *   1.- Conectamos el archivo con las BBDD importando pool.
         ![alt text](image-17.png)
-        2.- Creamos la función buscarPorEmail. Para ello primero permitimos su exportación y nos aseguramos que sea asincrona. 
-            1.- Creamos una variable que sea un array y lo llenamos con la petición a la BBDD. Para ellos usamos el objeto pool y le hacemos la petición. En este caso pedimos que nos devuelva la id, nombre, email, password, creado_en a la tabla clientes donde el email sea ?, es decir, que se lo daremos desde el frontend desde un formulario, por ejemplo. 
-            2.- Pedimos que nos devuelva el array con las líneas necesarias para devolver los datos solicitados. 
+        
+     *   2.- Creamos la función buscarPorEmail (para iniciar sesión). Para ello primero permitimos su exportación y nos aseguramos que sea asincrona. 
+          *  1.- Creamos una variable que sea un array y lo llenamos con la petición a la BBDD. Para ellos usamos el objeto pool y le hacemos la petición. En este caso pedimos que nos devuelva la id, nombre, email, password, creado_en a la tabla clientes donde el email sea ?, es decir, que se lo daremos desde el frontend desde un formulario, por ejemplo. 
+           * 2.- Pedimos que nos devuelva el array con las líneas necesarias para devolver los datos solicitados. 
             ![alt text](image-18.png)
+   *     3.- Creamos la función para crear cliente nuevo. En la cual, el método que usaremos en SQL será el POST:
+         *   1.- Creamos la función crearCliente() el cúal recibe un objeto con los datos --> nombre, email,password 
+         ![alt text](image-24.png)
+         *   2.- Creamos la variable resultado que será un array
+         *   3.- La variable será igual a pool y el método query para realizar la inserción de datos en SQL, donde le decimos que los datos del formulario que haremos en el frontend. 
+          *  4.- En el array introducimos los datos que queremos que se guarden y tienen que tener el mismo orden, puesto que cada uno tiene un tipo de datos. 
+            ![alt text](image-23.png)
+         *   5.- En el return, pedimos que nos devuelva un objeto que usaremos para crear el controlador = auth.controller.js
 
 # 21.- auth.controller.js
 *   Creamos este archivo. 
 
   *  1.- Nos importamos todas la funciones de clientes.model.js, por lo que usamos el selector universal (*) y le indicamos un nombre a todo este conjunto de funciones con "as" 
     ![alt text](image-19.png)
-    2.- Instalamos las librerias para encriptar las contraseñas con npm install jsonwebtoken y con npm install bcryptjs
+    2.- Instalamos las librerias para encriptar las contraseñas con npm install jsonwebtoken y con npm install bcryptjs.
+    bcryptjs --> hash a las contraseñas (encripta)
+    jwttoken --> para mantener las sesiones abiertas
+
     3.- Importamos las librerias de encriptación. 
     ![alt text](image-20.png)
-    4.- Creamos la función login () -->
+    4.- Creamos la funcion de registro-->
+      1.- Try...catch
+    *   --> Traemos los datos del front introducidos por el usuario (nombre,  email, password)
+    ![alt text](image-29.png)
+    
+      *  -->  Verificamos si el usuario existe antes de registralo y guardarlo en la base de datos. Esto lo hacemos usando la función buscarPorEmail del clientesModel trayendo el email introducido por el usuario en el front (dentro de parentesis)
+        ![alt text](image-30.png)
 
-    5.- Introducimos estos datos en el archivo .env : ![alt text](image-21.png)
+        --> Si el usuario no existe, primero encriptamos la password antes de guardarla en la BBDD, por lo que usamos bcrypt con el método hash en la que traemos la contraseña introducida por el usuario e indicamos el numero de "vueltas" que hace la encriptación para generar la password encriptada.
+        ![alt text](image-31.png)
+
+        --> Una vez creada la encriptación, creamos el cliente en la BBDD.
+        Para esto usamos la función crearCliente que traemos de clientesModel y le decimos que nombre, email que vienen de front lo lleva al modelo que espera tambien nombre e email. En cambio le decimos que la contraseña no coja la que traemos desde front porque viene en texto plano, sino le indicamos que use la variable hashedPassword que es la que encryptamos. 
+        ![alt text](image-32.png)
+
+        Ya con esto el modelo realiza el INSERT INTO y crea el cliente en la BBDD. 
+
+        --> Por último creamos un token nuevo para el usuario igual que indicamos en el siguiente punto para que se inicie sesión una vez te registres. 
+
+
+    5.- Creamos la función login () -->
+    *  1.- Try..catch--> dentro de try:
+
+        --> creamos la variable {email, password}, esto es como en el frontend indicamos el email y contraseña y cuando le damos a enviar y envía la petición de comprobación se usuario. Es decir, en el frontend introducimos los datos email y password y llega desde rutas al controlador y rellena esta variable con los datos introducidos, que luego viajan a modelo y, mediante SQL, comprueba si existe este usuario. 
+
+        --> La constraseña que nos llega tenemos que encriptarla con bcript y verificar si es correcta, pero se realiza encriptando la contraseña introducida. 
+        ![alt text](image-25.png)
+        Aquí vemos como usamos bcrypt y el método "compare", dentro de parentesis ponemos qué queremos comparar --> password, que es la contraseña introducida en el front y luego usuario.password que viene de la BBDD para comparar. 
+        ![alt text](image-26.png)
+
+        --> Buscamos usuario: usamos clientesModel con el método, que es la función traida de su script, buscarPorEmail y dentro de parentesis el email que introdujo el usuario desde el front. 
+        ![alt text](image-27.png)
+        
+        --> Una vez tenemos la contraseña verificada y el usuario correcto desde la BBDD, generamos el token para que pueda permanecer la sesión abierta el tiempo establecido que indicamos en el .env. 
+
+        Para crear el token usamos jwt y el método "sing" y le indicamos el id del usuario. Traemos del .env la contraseña que pusimos para poder usar esta librería y treamos el tiempo de expiración indicada también en el .env. 
+        ![alt text](image-28.png)
+
+
+
+    6.- Introducimos estos datos en el archivo .env : ![alt text](image-21.png)
 # 22. Creamos auth.routes.js
 
+Importamos Router de express e importamos todas las funciones de auth.controller.js con el selectro universal y lo renombramos con "as" como authController.
+
+Inicializamos router con la función Router()
+
+Por último creamos las rutas con el método post.
+![alt text](image-33.png) 
 
 # 23.- Configuramos en el servidor la ruta para auth
 
-*   1.- Importamos la ruta de auth.routes.js 
-    2.- Indicamos que ruta usar al server ![alt text](image-22.png)
+*    1.- Importamos la ruta de auth.routes.js que lo importamos con el nombre que queramos, en este caso, authRoutes. Aquí no es necesario usar el selector universal ni importar una a una las funciones porque son tenemos rutas. 
+
+    2.- Indicamos que ruta usar al server. Esto lo hacemos usando la función de express que inicializamos como app y usamos el método "use" y dentro de los parentesis indicamos la ruta y a authRoutes![alt text](image-22.png)
+
+# 24.- Probamos las rutas por Thunder
+
+Intentamos crear un usario desde la ruta definida en el server --> http://localhost:3000/api/auth/register
+--> Con el método POST
+--> En body llenamos los datos con formato JSON de la siguiente manera: 
+  -->{
+      "nombre":"Roberto",
+      "email": "roberto@ejemplo.com",
+      "password":"123456"
+     }
+
+EXITO. Usuario creado! --> {
+  "success": true,
+  "message": "Usuario registrado exitosamente",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRlX2lkIjo0LCJpYXQiOjE3NjQ2NzU0NjQsImV4cCI6MTc2NDc2MTg2NH0.j3wTa3lFWCvFbRo75y6ejaPNH83nJudhGuziI-dODFc",
+  "usuario": {
+    "id": 4,
+    "nombre": "Roberto",
+    "email": "roberto@ejemplo.com"
+  }
+}
+
+Ahora intentamos iniciar sesion 
+--> http://localhost:3000/api/auth/login
+--> Método POST
+--> {
+  "email": "roberto@ejemplo.com",
+  "password":"123456"
+}
+
+# 25.- Creamos el formulario de registro y de inicio de sesión en frontend
+
+* En el HTML creamos una sección y creamos dentro el formulario.
+    1.- Creamos el formulario de login
+      --> Datos clave: Input type:"email" y type:"password", además de required en ambos para impedir que pulsen el botón de "Iniciar" sin rellenar los campos.
+      --> Creamos el boton "Iniciar" type:"submit" para que envie los datos una vez lo indiquemos en el script con los eventos. 
