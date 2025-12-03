@@ -377,8 +377,21 @@ Ahora intentamos iniciar sesion
 
 # 26.- Creamos el script
   --> Creamos la variable estado. Aquí definimos un objeto que guarda los datos y mantiene la sesión del usuario abierta. 
+  ![alt text](image-35.png)
   Esta variable no se usa en REACT, pero en HTML podemos crearla. 
-  * 1.- Función registrar usuario: 
+
+  * 1.- Función guardarSesion() --> 
+      --> usamos los objetos de estado y le decimos que token que viene de back y token del script de front es el mismo. Hacemos lo mismo con usuario. 
+      ![alt text](image-36.png)
+      token y usuario de los parametros son los que vienen de back. Usamos localStorage.setItem que localStorage es un objeto del DOM y setItem método de este objeto y el usuario que luego veremos en inspeccionar en el navegador/application/localstorage.
+      ![alt text](image-37.png)
+      ![alt text](image-38.png)
+
+      Para que la funcion guardarSesion obtenga estos datos tenemos que traerlos del back que lo haremos con la función cargarSesionGuardada().
+
+    2.- Función cerrarSesion() -->
+      --> esta función es practicamente igual, pero sin los parámetros, puesto que no los necesitamos. Aquí vamos a volver a cambiar el valor de los estados "token" y "usuario" a NULL. Para ello usamos localStorage.removeItem, con este método podemos cambiar los valores a NULL de nuevo. 
+  * .- Función registrar usuario: 
       --> tenemos en parámetros los datos que obtendremos del front (nombre,emai y password)
       --> Creamos las variable respuesta donde realizamos con fetch la petición, que en este caso no será de lectura (GET), sino de escritura (POST).
 
@@ -392,6 +405,173 @@ Ahora intentamos iniciar sesion
       Front -> Script Front -> Server -> authRoutes -> authController -> clientesModel -> pool (db.js) -> .env
 
       -->El front envia los datos que los procesa con el script desde la función registrarUsario()
+
       --> Desde aquí viaja al server por la ruta "www.localhost:3000/api/auth/register"
+
       --> Donde está usando también la ruta de auth.routes.js; después los datos obtenidos del front pasan a la función register () y aquí procesa los datos y encripta la contraseña con bcript.hash
+
       --> Luego todos estos datos los envía a la función crearCliente() de clientes.model.js donde se encuentra con la orden SQL y con los datos de pool que sirven para conectarse a la BBDD y aquí ya se ejecuta la orden de guardado. 
+
+      dentro de la funcion registrar usuario creamos un condicional donde si la respuesta de registro es ok, ejecutamos la función guardar sesion donde está el token, por lo que nada más regitrarse se iniciará la sesión.
+
+    3.- Función cargarSesionGuardada()
+      --> traemos los datos de localStorage con el método "getItem" y guardamos estos valores en variables para usarlas ahora. 
+      ![alt text](image-39.png)
+      --> Creamos un condicional donde comparamos si las variables "tokenGuardado" y "usuarioGuardado" son TRUE y si lo son usamos try...catch y guardamos estos datos en el estado y con esto ya tenemos la sesion iniciada. 
+
+      Si los datos son FALSE llamamos a la función cerrarSesion() para limpiar el local y evitar errores.
+    ![alt text](image-40.png)
+
+    4.- 
+
+    5.- Función iniciarSesion()
+      --> En esta función tenemos los parámetros "email" y "password" que traemos desde front, esto lo usaremos para enviarselo a backend y que compruebe si los datos existen. Lo hacemos desde try...catch con fetch
+
+      --> try: creamos la variable respuesta, traemos la confirmación o no de la comprobación que le dijimos que hiciera. Esta comprobación se la realizamos con el método POST en la URL definida en el servidor para esta tarea. Le enviamos en formato JSON los datos de front. 
+      ![alt text](image-41.png)
+
+        --> Recibimos la respuesta, pero no la entiende así el front, por lo que tenemos que traducirla, por lo que creamos la variable datos y la llenamos con await respuesta.json()
+        ![alt text](image-42.png)
+
+        --> Por último, creamos un condicional donde si la respuesta es ok, ejecutamos la función guardarSesion, donde le damos los datos obtenidos y los guardamos en "token" y "usuario". 
+        Cargamos la funcion mostrarInterfaz();
+        y un alert para dar la bienvenida.
+        ![alt text](image-43.png)
+      
+      --> catch: nos avisa si la conexión petida al servidor no se puede realizar por problemas de conexión. 
+    
+    6.- Funcion registrarUsuario -->
+      --> Aqui tenemos 3 parámetros "nombre", "email", "password", estos son datos que traemos del front que nos proporcionará el usuario que quiere registarse. 
+      Qué hacemos con esto?
+
+      --> Dentro de try...catch creamos la petición al back para poder enviarle estos datos y crear el nuevo usuario.
+
+      Cómo lo hacemos? 
+
+      --> Usamos fetch. Creamos de nuevo una variable respuesta donde guardaremos los datos obtenidos de la petición POST. A fetch le indicamos la URL donde queremos que realice la petición, que esta vez será en "www.localhost:3000/api/auth/register".
+      ![alt text](image-44.png)
+
+      --> Guardamos los datos en la variable datos, pero como vienen ilegibles para el DOM le damos el método para traducirlo 
+      ![alt text](image-45.png)
+
+      --> Si la respuesta es ok ejecutamos la función guardarSesion para que se mantenga abierta una vez registrado el usuario y hacemos lo mismo que el inicio de sesión. Los datos que vienen del back se los damos a los estados "token" y "usuario" para que luego el objeto localStorage pueda usarlo con sus métodos, en este caso "setItem".
+      Llamamos a la función mostrarInterfaz() 
+      Y creamos un alert para que el usuario vea que el registro fue correcto. 
+
+      --> Si la respuesta es false mostraremos el alert con el mensaje de error en el registro.
+
+      --> catch: Si la conexión no funciona captura el error y nos lo muestra en consola.
+
+    7.- Función mostrarInterfaz() -->
+      --> Aquí generaremos todas las interacciones con el front. 
+
+      --> tenemos las vinculaciones hechas con el front a través de document.getElementById("")
+
+      --> Creamos una variable logged y le damos doble negación a estado.usuario, esto nos sirve para convertir NULL a un booleano FALSE, pero la segunda negación lo convierte un booleano TRUE. 
+      Con esto podemos usarlo en condicionales. 
+      ![alt text](image-46.png)
+
+      --> Ocultamos o no authSection. Si logged es TRUE añadimos la clase hidden que la tenemos en CSS con display: none, por lo que con este condicional le decimos si queremos o no que el formulario de autentificación esté o no oculta, puesto en else le dicimos que si no se cumple "logged" que elimine la clase "hidden".
+      ![alt text](image-47.png)
+
+      --> Luego tenemos el condicional que nos muestra, con authNav, el nombre de usuario que ha iniciado la sesión y el botón de cerrar sesión. 
+      Si el condicional no se cumple nos muestra el mensaje "Inicia sesión para comprar".
+      ![alt text](image-48.png)
+
+    8.- Función configurarEventosLogin() --> 
+      --> Creamos todas las relaciones con el DOM
+      ![alt text](image-49.png)
+
+      --> Creamos el condicional de donde le preguntamos que si existe "loginForm", que es la variable donde le decimos que es la id del DOM "loginFormElement". Si existe le decimos que loginForm "escuche" el "submit" y creamos la función flecha donde tenemos como parámetro "e" que usamos luego con e.preventDefault (); para que la página no se recargue.
+      Abajo le decimos que obtenga los datos de email y password del DOM
+      Con estos datos le decimos que realice la función iniciarSesion()
+      Por último que reinicie loginForm
+      ![alt text](image-50.png)
+
+      --> Hacemos lo mismo con "showRegister" y "showLogin" con el que le decimos que ponga o quite la clase "hidden".
+      ![alt text](image-51.png)
+      
+      --> Por último creamos el evento donde esperamos a que el DOM se cargue para luego llamar las funciones cargarSesionGuardada(), configurarEventosLogin(), mostrarInterfaz(). 
+      ![alt text](image-52.png)
+# 27. Middleware 
+
+
+      ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# 28. pedidos.model
+  Comenzamos importando las conexiones con la BBDD. 
+
+  Antes de crear las funciones tenemos que averiguar que campos tiene la tabla de pedidos en la BBDD para saber que vamos a necesitar.
+
+  TABLA 'pedidos' (cabecera del pedido):
+ *    - id (PRIMARY KEY, AUTO_INCREMENT)
+ *    - cliente_id (FOREIGN KEY a tabla clientes)
+ *    - estado (VARCHAR: 'pendiente', 'pagado',   'enviado', 'entregado', 'cancelado')
+ *    - fecha (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+
+--> Función crearPedido ()-->
+  --> En esta función tenemos un parámetro que es clienteId que se llenará con la id del cliente que viene del token del localStorage. 
+
+  --> Creamos un array "result" y realizamos la consulta la BBDD con SQL, donde le decimos que introduzca en la tabla pedidos el cliente_id y el valor es el que viene del front del token que está en localStorage. 
+  Con esto luego conseguimos que nos traiga el dato al array "clienteId". 
+
+  --> En return le pedimos que nos devuelva: 
+    -->id de pedido, que se crea de forma automática y autoincrementativa en la BBDD,
+    -->cliente_id, que nos trae la id del cliente que creó el pedido.
+    -->estado, que nace como "pendiente". 
+   
+--> Función agregarProductoAPedido()-->
+  Aquí estamos creando una tabla intermedia donde todas las relaciones confluyen, pero no tiene ninguna
+
+  --> Aquí podemos encontrarnos 3 parámetros "pedidoID", "productoId", "cantidad". Estos valores los vienen del front. 
+    ![alt text](image-54.png)
+
+  --> Creamos un array, igual que el de arriba donde realizaremos la consulta a la BBDD en SQL y nos traemos los datos de nuevo, para luego decirle a return que queremos que nos devuelva. 
+![alt text](image-55.png)
+  --> return --> Nos devuelve un objeto con la id autoincrementada de la tabla pedidos_productos y el resto de datos que solicitamos 
+  ![alt text](image-53.png)
+
+--> Función obtenerPedidoPorId -->
+  --> Aquí traemos el parámetro id, que será el id del pedido que viene del front
+  --> Realizamos la consulta a la tabla pedidos de donde traemos los datos de "id", "cliente_id", "estado", "fecha" desde la id que le traemos desde el front. 
+  ![alt text](image-56.png)
+
+  --> Por último le pedimos que nos devuelva todo. 
+  ![alt text](image-57.png)
+
+--> Función obtenerLineasDePedido(idPedido)-->
+  --> Traemos la id de la tabla pedido y la usamos en el parámetro para luego realizar la consulta a la BBDD con SQL. 
+
+  --> La consulta que realizamos es para que nos traiga la id de pedidos_productos y la cantidad y también nos trae de la tabla nombre, precio y la imagen de la tabla productos. Así podemos generar una tabla donde aperezcan todos estos datos consutados. 
+  ![alt text](image-58.png)
+
+  --> return: Para traernos la consulta llamamos a rows en return.  
+  ![alt text](image-59.png)
+
+--> Función obtenerPedidosDeCliente -->
+  --> Aquí queremos traer un listado de todos los pedidos del cliente, para ello debemos realizar una consulta a la BBDD que la haremos de la siguiente forma: 
+    --> Usamos clienteId que traemos de localStorage y como las tablas de cliente y pedidos están relacionadas realizamos la consulta sabiendo esto. 
+    --> Como siempre, creamos un array y desde aquí realizamos la consulta usando SQL en la que solicitamos la id, cliente_id,estado y fecha desde la tabla pedidos usando cliente_id que lo traemos desde el front y le indicamos que nos lo ordene de forma descendiente. 
+    ![alt text](image-60.png)
+
+    --> Por último le decimos que nos lo devuelva para poder usarlo luego y mostrarlo en el front. 
+  ![alt text](image-61.png)
+
+--> Función actualizarEstado () -->
+  --> Aquí queremos poder actualizar los estados de los pedidos para conocer sus cambios, para ellos usamos los parámetros idPedido y nuevoEstado que traemos desde la BBDD. 
+
+  --> Aquí realizamos la función de consulta donde actulizamos el estado mediente SQL que sería así: 
+  ![alt text](image-62.png)
+
+  --> Por último pedimos que nos devuelva idPedido como id y estado como nuevoEstado. 
+  ![alt text](image-63.png)
+
+--> Función crear() -->
+  --> Esta vez tenemos un objeto formado por "cliente_id" y "productos" donde ambos pueden traer muchos datos por lo que es un array. 
+  
+  --> Dentro de try...catch
+    --> Creamos la variable pedido donde llamamos a la función crearPedido con el parámetro "cliente_id"
+    ![alt text](image-64.png)
+
+    --> Creamos la variable productosAgregados que será una array para traer muchos productos. 
+
+    --> Usamos un bucle for  
