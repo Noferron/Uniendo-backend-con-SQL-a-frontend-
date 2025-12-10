@@ -493,11 +493,11 @@ Ahora intentamos iniciar sesion
       
       --> Por último creamos el evento donde esperamos a que el DOM se cargue para luego llamar las funciones cargarSesionGuardada(), configurarEventosLogin(), mostrarInterfaz(). 
       ![alt text](image-52.png)
-# 27. Middleware 
+
 
 
       ------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 28. pedidos.model
+# 27. pedidos.model
   Comenzamos importando las conexiones con la BBDD. 
 
   Antes de crear las funciones tenemos que averiguar que campos tiene la tabla de pedidos en la BBDD para saber que vamos a necesitar.
@@ -566,12 +566,278 @@ Ahora intentamos iniciar sesion
   ![alt text](image-63.png)
 
 --> Función crear() -->
-  --> Esta vez tenemos un objeto formado por "cliente_id" y "productos" donde ambos pueden traer muchos datos por lo que es un array. 
+  --> Esta vez tenemos un objeto formado por "cliente_id" y "productos" donde ambos pueden traer muchos datos por lo que es un array.
+  Esta estructura es de la function (req,res)--> crearPedidos ({cliente_id ,productos=[]}) lo que pasa que solo tenemos el req (la petición). 
+  ![alt text](image-70.png)
   
   --> Dentro de try...catch
     --> Creamos la variable pedido donde llamamos a la función crearPedido con el parámetro "cliente_id"
     ![alt text](image-64.png)
 
-    --> Creamos la variable productosAgregados que será una array para traer muchos productos. 
+   * --> Creamos la variable productosAgregados que será una array para traer muchos productos. 
+    ![alt text](image-65.png)
 
-    --> Usamos un bucle for  
+    --> Usamos un bucle for -->
+      --> "productos" viene del front y es un array y los nombramos como "producto" para usarlo ahora en la función. 
+      --> for...of es una estructura de los bucles. En este caso lo que conseguimos es recorrer el array "productos" en plural y va guardando y usando dentro del bucle en "producto", singular. 
+      ![alt text](image-66.png)
+
+      Por ejemplo y en este caso, tenemos un listado de productos que viene dado por el cliente desde el front, en el bucle for(const productos of productos) cada uno de los articulos se guarda en la variable producto y lo usamos para buscar la id y la cantidad de cada uno de ellos. 
+
+      Ejemplo: 
+      ```js
+      frutas =["fresas","platanos","peras"];
+
+        for (const fruta of frutas){
+          console.log(fruta)
+        }
+        Esto devuelve una lectura individual de cada una de las frutas que se guarda temporalmente para mostrarlo en la variable fruta.
+      ```
+
+      --> Dentro del bucle for declaramos la variable "lineaPedido" desde donde usaremos la función "agregarProductoAPedido" donde declaramos un parámetro que es un objeto. Este objeto obtiene a través de la variable "pedido" que viene arriba declarada con la función crearPedido() de donde obtenemos la id de pedido, luego, usamos la variable producto del bucle y obtenemos la id del producto y la cantidad. 
+
+      Después de declarar el parámetro, en la función usamos la variable productosAgregados, que es un array, para llenarlo con los datos obtenidos de la variable lineaPedido y realizamos un push que es agregar. 
+      ![alt text](image-67.png)
+
+      -->return --> Pedimos que nos devuelve de pedido, la id, id de cliente, el estado, productos agregados y la longitud de los productos agregados. 
+      ![alt text](image-68.png)
+
+      --> Catch -->
+        --> Capturamos el error e indicamos un mensaje "Error al crear pedido completo"
+
+      --> Por ultimo exportamos la funcion, pero la renombramos, en este caso porque daba un error.
+      ![alt text](image-69.png)
+# 28.- pedidos.controller
+  --> Importamos el modelo de pedidos
+  ![alt text](image-71.png)
+
+  --> Función crearPedido(req, res)
+    --> Creamos una varible que es un objeto "productos", esto viene desde la petición del cliente (req.body)
+    --> cliente_id aquí guardamos que obtenemos del script de middleware. Esto es porque estamos exigiendo que debe ser un usuario autenticado el único que puede realizar un pedido. 
+    ![alt text](image-72.png)
+
+   * --> incluimos dos console.log que nos sirve para entender que es lo que estamos haciendo y que datos estamos obteniend
+    ![alt text](image-73.png)
+
+    --> Creamos pedido: declaramos la variable "nuevoPedido" donde usaremos la función "crear()" que traemos desde peidosModel de donde traemos cliente_id y productos que es un array.
+    ![alt text](image-74.png)
+
+    --> Definimos la respuesta que queremos que nos de el backend. Aquí pedimos que los datos solicitados se guarden en la variable nuevoPedido, lo que llenará los parámetros dados.
+    ![alt text](image-75.png)
+
+    --> catch: "Error interno del servidor"
+
+  --> Función getMisPedidos(req,res)
+    --> Dentro de try 
+      --> Creamos la variable cliente_id que llenaremos con los datos que vienen de la middleware para que esté encriptada.
+
+      --> Creamos la variable pedidos la llenamos con la función que traemos de pedidosModel "obtenerPorCliente(cliente_id)"
+
+      --> Creamos la variable pedidosCompletos que será un array vacío. 
+
+      --> Bucle for...of
+        --> Aquí tenemos de nuevo esta estructura donde tenemos el array pedidos, que obtenemos de la función de pedidosModel de arriba guardada en esta varible "pedidos" y queremos obtener los datos individuales de cada uno de los pedidos, por lo que...
+        --> Declaramos la variable "pedido" en singular que irá guardando y ejecutando uno a uno los pedidos guardados en el array de "pedidos" en singular. 
+        ![alt text](image-76.png)
+
+        --> Qué queremos obtener de cada uno de los pedidos? 
+          Primero, queremos obtener los productos de cada pedido, por lo que creamos una variable llamada "productos" y, dentro, ejecutamos la función que traemos de pedidosModel "obtenerLineasDePedido(pedido.id)"
+          ![alt text](image-77.png)
+
+          Para que nos muestre los datos obtenidos de ejecutar esta función llenamos el array "pedidosCompletos"
+
+          --> Llenamos el array "pedidosCompletos", para hacer esto usamos el método "push" de los array que agrega datos. 
+          Qué agragamos?
+          Pues agramos un objeto, donde obtendremos id, id de cliente, estado y fecha de pedido, además de el listado de productos obtenido de la función que tenemos dentro de la variable "productos" que ejecuta la función "ObtenerLineasDePedido(pedido_id)". 
+          ![alt text](image-78.png)
+        
+        --> Console
+
+       * --> Definimos que queremos que nos responda el back. Aquí le indicamos que nos mande y llene el objeto del array "pedidosCompletos" 
+        ![alt text](image-79.png)
+
+        --> Catch: "Error interno del servidor" 
+# 29.- Middleware
+  Son funciones intermedias que se ejecutan entre la petición del cliente y el servidor, es decir, un filtro. Aquí estamos obligando a que el usuario tenga un token para acceder a rutas protegidas. 
+
+  --> Importamos la libreria jwt para usar sus funciones y métodos. 
+  ![alt text](image-80.png)
+
+  --> Función verificarToken (req, res, next)-->
+    --> Qué es next? 
+      --> Función para continuar. Si los datos recibidos son validos da permiso a continuar a las rutas protegidas. 
+
+      Ejemplo: En rutas tenemos esta estructura con los 3 parámetros, que vendría ser: 
+
+      ```js
+      //Ruta mios, que decimos que verifique Token y si es correcta ejectura getMispedidos
+      //          (req---,res------------,next---------)
+      router.get("/mios", verificarToken, getMisPedidos)
+      ```
+    
+    --> Varible authHeader lee la cabecera que envía el front
+
+    --> bearer significa portador 
+
+
+    Falta explicación de las middleware, pedidos.Routes, server.js donde incluimos la ruta pedidos y las rutas de gestión de errores 
+
+# 32.- Front de pedidos
+
+     Ya terminamos el backend de pedidos, ahora toca crear el front. 
+
+     --> Creamos el carrito
+        --> Creamos una sección para el carrito donde lo iniciamos como "Tu carrito está vacío", algo que cambiaremos desde el script 
+
+        Iniciamos el Total en 0 y creamos los botones crear pedido y vaciar carrito. 
+
+    --> Creamos la sección Pedidos
+        --> Aquí usaremos las funciones creadas en el modelo para mostrar el listado de productos.
+
+        --> Ponemos un botón actualizar. 
+        -->
+
+# 33.- Script del front.
+
+Añadimos estados nuevos. Antes teniamos usuario y token, ahora añadimos productos:[] y carrito:[]
+![alt text](image-65.png)
+
+* --> getAuthHeaders()
+    --> La variable headers, aqui guardamos la cabecera con el formato que nos da express. 
+
+    --> En el condicional verificamos el token. Preguntamos si en el estado hay un token y dentro llamamos a la cabecera del la middleware y con el método "Authorization" pedimos que nos compruebe si es correcto --> Verificar si es así
+
+    --> Pedimos que nos devuelva headers 
+    ![alt text](image-66.png)
+
+--> Función estaLogueado ()
+    --> Aquí usamos la doble negación para transformar la comprobación que le pedimos en un booleano y luego pasa de FALSE, como nace, a TRUE. Es decir:
+    Pedimos está dentro del estado "usuario" y "token" y si es así que nos devuelva TRUE. 
+    ![alt text](image-67.png)
+
+
+//Esto no vale!!! desde aquí hasta el siguiente comentario
+-->Función agregarAlCarrito 
+    --> 1º Comprobamos si el cliente está loggeado:
+        En este caso la comprobación la realizamos con la negación, es decir, si el usuario no está logado, según nos indique la función estaLogueado(), devolverá una ventana de alerta y cortará la función y no seguirá ejecutandose. 
+        ![alt text](image-68.png)
+
+   * --> 2º Verificamos los datos: 
+        Creamos una variable producto en el que usaremos estado y accedemos a productos que es un componente el cual es un array y usamos el método find. Dentro de los parentesis realizamos la función flecha donde buscamos  la id de productoId y si lo encuentra devulve el objeto y si no devuelve undefined
+        ![alt text](image-70.png)
+
+        Cómo se llena el array productos ? 
+
+      *  Desde la función cargarProductos realizamos la petición para que nos muestre el listado de productos guardados en la BBDD, entonces obtenemos todos los datos de la tabla productos que guardamos en la variable datos y los datos vienen cargados en data. Pero claro, como se llena el array productos? Pues igualamos datos a estado.productos, es decir, le decimos que estado.productos es igual a los datos que obtenemos de la base de datos. 
+        ![alt text](image-69.png)
+
+    --> 3º Verificamos el stock:
+        --> Realizamos esto con un condicional donde preguntamos si producto.stock es menor que cantidad, si se cumple esta condición, la función se para y avisa al cliente que no hay suficiente stock. 
+        De donde viene cantidad? Es un botón que tenemos en el front que suma unidades de un producto. 
+        ![alt text](image-71.png)
+    
+    --> 4º Verificamos duplicados: 
+        --> Realizamos una busqueda en el array carrito del estado con el método find y comprobamos si productoId existe ya en el array. 
+        ![alt text](image-72.png)
+        
+        --> Comprobamos si el producto está ya en carrito: 
+         Comprobamos productoEnCarrito con un condicional. Aquí decimos que hacemos si una id de producto está duplicada y como calcular cantidades. 
+         Creamos una variable nuevaCantidad y sumamos la cantidad de productoEnCarrito más cantidad. 
+
+         Luego comprobamos si nuevaCantidad es mayor que producto.stock para que no nos deje agregar más producto del que tenemos en stock. 
+
+         Si no es así podemos decir que productoEnCarrito.cantidad es igual a nuevaCantidad
+
+        --> En el else, comprobamos si hay un producto nuevo en el carrito
+
+        Si se cumple esta condición le decimos que en el array carrito realice un push (agregar) los datos del nuevo producto con todos los datos obtenidos del back (id,nombre,precio, cantidad, stock)
+
+
+--> Función quitarDelCarrito 
+    --> Necesitamos el parámetro productoId para realizar esta función
+    ![alt text](image-73.png)
+
+    --> Creamos la variable index donde realizaremos una busqueda en el array de carrito usando el método "findIndex" donde comprobaremos que item tenga la id igual al producto id. 
+
+    Esto lo usaremos en el condicional para realizar el borrado. 
+
+   * --> Decimos que si index es distinto de -1 
+        --> Creamos una variable producto donde guardaremos la busqueda index en el array de carrito
+        ![alt text](image-74.png)
+
+        --> Entonces usamos el método "splice" de los arrays para borrar el id del producto encontrado en index y le indicamos que sea solo 1 la cantidad a borrar. 
+
+        --> Por último, llamamos a las funciones mostrarCarrito y actualizarBotonCarrito.
+
+--> Función cambiarCantidad ()
+    --> Usamos 2 parámetros "productoId" y "nuevaCantidad"
+    ![alt text](image-75.png)
+    --> Si nuevaCantidad es menor a 1 eliminamos el producto completamente, para esto llamamos a la función quitarDelCarrito y le indicamos en parámetro "productoId" para que sepa cual borrar
+    ![alt text](image-76.png)
+
+   * --> Buscamos el producto en el carrito usando el método "find" de los arrays
+    ![alt text](image-77.png)
+
+    --> Luego usamos esta busqueda en la condición del condicional para sumar la cantidad, pero antes comprobamos que el stock no exceda el stock disponible con otro condicional donde comparamos nuevaCantidad sea mayor que productoEnCarrito.stock y si se cumple mandamos aviso y la función deja de ejecutarse. 
+    ![alt text](image-78.png)
+
+    Una vez hecha la comprobación, actualizamos la cantidad donde le decimos que productoEnCarrito.cantidad es igual a nuevaCantidad. 
+
+    Terminamos llamando mostrarCarrito() y actualizarBotonCarrito ()
+
+--> Función calcularTotal () 
+    --> 
+    //Hasta aquí 
+
+# 34.- Carrito
+ *
+    --> Función cargarProductosTienda()
+        --> Aquí nos traemos la función obtenerProductos() y la metemos en una variable para usarla como parámetro. "Lista" es nuestra variable que recoge un array llenandose con "datos" que son los datos que trae la función "obtenerProductos()".
+        ![alt text](image-80.png)
+        --> Llamamos a la función mostrarProductosTienda() y la indicamos el parámetro "lista".  
+        ![alt text](image-79.png)
+    *
+    --> Función mostrarProductosTienda(lista)
+        --> Creamos la relación desde script con el DOM a traves de document.getElementById con la variable "contenedor". 
+        ![alt text](image-81.png)
+
+        Qué queremos hacer con esto? 
+*
+        Queremos que nos cree un div con todos los datos de lista y para esto usamos un condicional en el que preguntamos si "contenedor" no existe haz lo siguiente: 
+        ![alt text](image-82.png)
+
+        --> Creamos un evento para los botones, pero, por qué?
+        Como los botones se van a crear de forma automática para cada uno de los productos necesitamos que cada botón sepa a que producto corresponde a cada uno.
+*
+        Cómo sabe esto? 
+        1º --> En el condicional anterior le indicamos los datos que va a recoger: 
+        ![alt text](image-83.png)
+        Como vemos, dentro de la etiqueta botón introducimos "data" donde indicamos con qué lo vamos a rellenar. 
+
+        Y como se llena el botón? 
+
+      Pues creamos un forEach para recorrer el array que le traemos y dentro     creamos el evento a escuchar "click" donde le indicamos que "producto" es un objeto que contiene los siguientes datos: 
+            --> id: Number(btn.dataset.id) --> esto quiere decir, que id es un número "Number" y que llene "dataset" con id. 
+            Con "Number" parseamos o cambiamos el dato, que viene como string a number o int "1" a 1
+            --> nombre: btn.dataset.nombre
+            --> precio: Number(btn.dataset.precio)
+ **           ![alt text](image-84.png)
+       
+       --> Por último, llamamos a la función agregarAlCarrito(producto) que contiene el parámetro "producto" que es la variable que hemos declarado dentro del forEach y con esto llenamos de datos la función agregarAlCarrito().
+ **       ![alt text](image-85.png)
+
+ IMPORTANTE, EN CERRAR SESIÓN INDICAMOS QUE BORRE CARRITO DE LOCALSTORAGE PARA QUE NO SE QUEDE COLGADO  
+ ```js
+ estado.carrito = { items: [], total: 0 };
+ localStorage.removeItem("carrito");
+ ```
+
+*    --> Función cargarCarrito()
+
+        Esta función es para que recupere el carrito si el usuario salió sin cerrar sesión. 
+
+        
+        --> Creamos la variable "guardado" que recogerá los datos de localStorage que con el método ."getItem" y que lo guarde en el campo "carrito". 
+        ![alt text](image-86.png)
+
+        --> Ahora que tenemos "guardado" lo usamos para generar un condicional con el que si le decimos que si existe un carrito
